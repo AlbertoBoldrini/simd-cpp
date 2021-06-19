@@ -35,17 +35,17 @@ int main()
     if (any(x > 9))
         std::cout << "At least one value of x is greater than 9."  << std::endl;
 
-    std::cout << "Sum of elements of z: " << sum(z) << std::endl;
+    std::cout << "Sum of elements of x: " << sum(x) << std::endl;
 
     // Casts
     i32x8 g = x;
-    f32x8 fz = z - i32x8(z); // Fractional part of z
+    f32x8 fz = x - i32x8(x); // Fractional part of x
     i32x8 indexes = {0,3,2,5,1,4,6,7};
 
-    // Shuffle elements of z using indexes
-    f32x8 z_shuffled = z[indexes];
+    // Shuffle elements of x using indexes
+    f32x8 x_shuffled = x[indexes];
 
-    // Prints all values of z_shuffled
-    std::cout << "z_shuffled: " << z_shuffled << std::endl;
+    // Prints all values of x_shuffled
+    std::cout << "x_shuffled: " << x_shuffled << std::endl;
     return 0;
 }
