@@ -214,10 +214,12 @@ template<class T, unsigned int N, class F, class R>
         return out;
     }
 
-template<class T, unsigned int N> inline bool any (const simd<T,N> &s) { bool r = false; for(unsigned int i = 0; i < N; i++) r = r || s[i]; return r; }
-template<class T, unsigned int N> inline bool all (const simd<T,N> &s) { bool r = true;  for(unsigned int i = 0; i < N; i++) r = r && s[i]; return r; }
-template<class T, unsigned int N> inline T    sum (const simd<T,N> &s) { T    r = 0;     for(unsigned int i = 0; i < N; i++) r = r +  s[i]; return r; }
-template<class T, unsigned int N> inline T    prod(const simd<T,N> &s) { T    r = 1;     for(unsigned int i = 0; i < N; i++) r = r *  s[i]; return r; }
+template<class T, unsigned int N> inline bool any (const simd<T,N> &s) { bool r = s[0]; for(unsigned int i = 1; i < N; i++) r = r || s[i]; return r; }
+template<class T, unsigned int N> inline bool all (const simd<T,N> &s) { bool r = s[0]; for(unsigned int i = 1; i < N; i++) r = r && s[i]; return r; }
+template<class T, unsigned int N> inline T    sum (const simd<T,N> &s) { T    r = s[0]; for(unsigned int i = 1; i < N; i++) r = r +  s[i]; return r; }
+template<class T, unsigned int N> inline T    prod(const simd<T,N> &s) { T    r = s[0]; for(unsigned int i = 1; i < N; i++) r = r *  s[i]; return r; }
+template<class T, unsigned int N> inline T    max (const simd<T,N> &s) { T    r = s[0]; for(unsigned int i = 1; i < N; i++) r = r > s[i] ? r : s[i]; return r; }
+template<class T, unsigned int N> inline T    min (const simd<T,N> &s) { T    r = s[0]; for(unsigned int i = 1; i < N; i++) r = r < s[i] ? r : s[i]; return r; }
 
 namespace std 
 {
@@ -260,6 +262,9 @@ namespace std
 
     template<class T, unsigned int N> inline simd<T,N> atan2  (const simd<T,N> &a, const simd<T,N> &b) { return map<T>(std::atan2, a, b); }
     template<class T, unsigned int N> inline simd<T,N> pow    (const simd<T,N> &a, const simd<T,N> &b) { return map<T>(std::pow,   a, b); }
+
+    template<class T, unsigned int N> inline simd<T,N> max    (const simd<T,N> &a, const simd<T,N> &b) { return a.r > b.r ? a.r : b.r; }
+    template<class T, unsigned int N> inline simd<T,N> min    (const simd<T,N> &a, const simd<T,N> &b) { return a.r < b.r ? a.r : b.r; }
 }
 
 #endif
