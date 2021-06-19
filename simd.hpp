@@ -32,10 +32,10 @@ template<class T, unsigned int N>
 
         constexpr simd() {}
         constexpr simd(const aligned &r) : r(r)   {}
-        constexpr simd(const simd &s)    : r(s.r) {} 
+        constexpr simd(const simd    &s) : r(s.r) {} 
 
         // Costruction from single or multiple scalar values
-        template<class V>    constexpr simd (const V &   x) : r(T(x) - aligned{}) {}
+        template<class    V> constexpr simd (const V &   x) : r(T(x) - aligned{}) {}
         template<class... V> constexpr simd (const V &...x) : r{T(x)...}          {}
 
         // Construction from different simd type
@@ -72,10 +72,10 @@ template<class T, unsigned int N>
 
         // Shuffle operators
         template<class V, unsigned int M> constexpr simd<T,M> operator [] (const simd<V,M> &s) const
-            { return __builtin_shufflevector(r, r, s.r); }
+            { return __builtin_shuffle(r, r, s.r); }
 
         template<class V> constexpr simd<V,N> shuffle (const simd<V,N> &a, const simd<V,N> &b) const
-            { return __builtin_shufflevector(a.r, b.r, r); }
+            { return __builtin_shuffle(a.r, b.r, r); }
 
         template<class V> constexpr simd<V,N> blend (const simd<V,N> &a, const simd<V,N> &b) const
             { return r ? a.r : b.r; }
@@ -128,54 +128,32 @@ template<class T, unsigned int N>
     constexpr bool is_simd< simd<T,N> > = true;
 
 template<class T>
-    constexpr bool is_simd_or_arithmetic = std::is_arithmetic<T>::value || is_simd<T>;
+    constexpr bool is_simd_or_scalar = std::is_arithmetic<T>::value || is_simd<T>;
 
 // Binary operators
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator +  (const T &x, const V &y) { return R(x).r +  R(y).r; }  
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator -  (const T &x, const V &y) { return R(x).r -  R(y).r; }  
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator *  (const T &x, const V &y) { return R(x).r *  R(y).r; }  
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator /  (const T &x, const V &y) { return R(x).r /  R(y).r; }
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator %  (const T &x, const V &y) { return R(x).r %  R(y).r; }
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator && (const T &x, const V &y) { return R(x).r && R(y).r; }
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator || (const T &x, const V &y) { return R(x).r || R(y).r; }   
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator &  (const T &x, const V &y) { return R(x).r &  R(y).r; } 
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator |  (const T &x, const V &y) { return R(x).r |  R(y).r; }
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator ^  (const T &x, const V &y) { return R(x).r ^  R(y).r; }   
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator << (const T &x, const V &y) { return R(x).r << R(y).r; }
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>> constexpr R operator >> (const T &x, const V &y) { return R(x).r >> R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator +  (const T &x, const V &y) { return R(x).r +  R(y).r; }  
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator -  (const T &x, const V &y) { return R(x).r -  R(y).r; }  
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator *  (const T &x, const V &y) { return R(x).r *  R(y).r; }  
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator /  (const T &x, const V &y) { return R(x).r /  R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator %  (const T &x, const V &y) { return R(x).r %  R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator && (const T &x, const V &y) { return R(x).r && R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator || (const T &x, const V &y) { return R(x).r || R(y).r; }   
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator &  (const T &x, const V &y) { return R(x).r &  R(y).r; } 
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator |  (const T &x, const V &y) { return R(x).r |  R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator ^  (const T &x, const V &y) { return R(x).r ^  R(y).r; }   
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator << (const T &x, const V &y) { return R(x).r << R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>> constexpr R operator >> (const T &x, const V &y) { return R(x).r >> R(y).r; }
 
 // Comparison operators
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator == (const T &x, const V &y) { return R(x).r == R(y).r; }
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator != (const T &x, const V &y) { return R(x).r != R(y).r; }
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator <  (const T &x, const V &y) { return R(x).r <  R(y).r; }
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator <= (const T &x, const V &y) { return R(x).r <= R(y).r; }
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator >  (const T &x, const V &y) { return R(x).r >  R(y).r; }
-template<class T, class V, class E = std::enable_if_t<is_simd_or_arithmetic<T> && is_simd_or_arithmetic<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator >= (const T &x, const V &y) { return R(x).r >= R(y).r; }
-
-template<class T, unsigned int N>
-    bool any(const simd<T,N> &s)
-    {
-        bool out = false;
-
-        for (unsigned int i = 0; i < N; i++)
-            out = out || s[i];
-
-        return out;
-    }
-
-template<class T, unsigned int N>
-    bool all(const simd<T,N> &s)
-    {
-        bool out = true;
-
-        for (unsigned int i = 0; i < N; i++)
-            out = out && s[i];
-
-        return out;
-    }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator == (const T &x, const V &y) { return R(x).r == R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator != (const T &x, const V &y) { return R(x).r != R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator <  (const T &x, const V &y) { return R(x).r <  R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator <= (const T &x, const V &y) { return R(x).r <= R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator >  (const T &x, const V &y) { return R(x).r >  R(y).r; }
+template<class T, class V, class E = std::enable_if_t<is_simd_or_scalar<T> && is_simd_or_scalar<V>>, class R = std::common_type_t<T,V>, class M = typename R::int_type> constexpr M operator >= (const T &x, const V &y) { return R(x).r >= R(y).r; }
 
 template<class R, class T, unsigned int N>
-    simd<R,N> map(R (*function)(T), const simd<T,N> &s)
+    inline simd<R,N> map(R (*function)(T), const simd<T,N> &s)
     {
         simd<R,N> out;
 
@@ -186,7 +164,7 @@ template<class R, class T, unsigned int N>
     }
 
 template<class T, unsigned int N, class F, class R = std::result_of_t<F(T)>>
-    simd<R,N> map(const F &function, const simd<T,N> &s)
+    inline simd<R,N> map(const F &function, const simd<T,N> &s)
     {
         simd<R,N> out;
 
@@ -196,8 +174,19 @@ template<class T, unsigned int N, class F, class R = std::result_of_t<F(T)>>
         return out;
     }
 
+template<class R, class T, unsigned int N>
+    inline simd<R,N> map(R (*function)(T, T), const simd<T,N> &a, const simd<T,N> &b)
+    {
+        simd<R,N> out;
+
+        for (unsigned int i = 0; i < N; i++)
+            out[i] = function(a[i], b[i]);
+
+        return out;
+    }
+
 template<class T, unsigned int N, class F, class R>
-    R reduce(const F &function, const simd<T,N> &s, const R &initial)
+    inline R reduce(const F &function, const simd<T,N> &s, const R &initial)
     {
         R out = initial;
 
@@ -207,14 +196,52 @@ template<class T, unsigned int N, class F, class R>
         return out;
     }
 
+template<class T, unsigned int N> inline bool any (const simd<T,N> &s) { bool r = false; for(unsigned int i = 0; i < N; i++) r = r || s[i]; return r; }
+template<class T, unsigned int N> inline bool all (const simd<T,N> &s) { bool r = true;  for(unsigned int i = 0; i < N; i++) r = r && s[i]; return r; }
+template<class T, unsigned int N> inline T    sum (const simd<T,N> &s) { T    r = 0;     for(unsigned int i = 0; i < N; i++) r = r +  s[i]; return r; }
+template<class T, unsigned int N> inline T    prod(const simd<T,N> &s) { T    r = 1;     for(unsigned int i = 0; i < N; i++) r = r *  s[i]; return r; }
+
 namespace std 
 {
-    template<class T, unsigned int N> inline simd<T,N> round(const simd<T,N> &s) { return map<T>(std::round, s); }
-    template<class T, unsigned int N> inline simd<T,N> sqrt (const simd<T,N> &s) { return map<T>(std::sqrt,  s); }
-    template<class T, unsigned int N> inline simd<T,N> exp  (const simd<T,N> &s) { return map<T>(std::exp,   s); }
-    template<class T, unsigned int N> inline simd<T,N> log  (const simd<T,N> &s) { return map<T>(std::log,   s); }
-    template<class T, unsigned int N> inline simd<T,N> cos  (const simd<T,N> &s) { return map<T>(std::cos,   s); }
-    template<class T, unsigned int N> inline simd<T,N> sin  (const simd<T,N> &s) { return map<T>(std::sin,   s); }
+    template<class T, unsigned int N> inline simd<T,N> cos    (const simd<T,N> &s) { return map<T>(std::cos,    s); }
+    template<class T, unsigned int N> inline simd<T,N> sin    (const simd<T,N> &s) { return map<T>(std::sin,    s); }
+    template<class T, unsigned int N> inline simd<T,N> tan    (const simd<T,N> &s) { return map<T>(std::tan,    s); }
+    template<class T, unsigned int N> inline simd<T,N> acos   (const simd<T,N> &s) { return map<T>(std::acos,   s); }
+    template<class T, unsigned int N> inline simd<T,N> asin   (const simd<T,N> &s) { return map<T>(std::asin,   s); }
+    template<class T, unsigned int N> inline simd<T,N> atan   (const simd<T,N> &s) { return map<T>(std::atan,   s); }
+
+    template<class T, unsigned int N> inline simd<T,N> cosh   (const simd<T,N> &s) { return map<T>(std::cosh,   s); }
+    template<class T, unsigned int N> inline simd<T,N> sinh   (const simd<T,N> &s) { return map<T>(std::sinh,   s); }
+    template<class T, unsigned int N> inline simd<T,N> tanh   (const simd<T,N> &s) { return map<T>(std::tanh,   s); }
+    template<class T, unsigned int N> inline simd<T,N> acosh  (const simd<T,N> &s) { return map<T>(std::acosh,  s); }
+    template<class T, unsigned int N> inline simd<T,N> asinh  (const simd<T,N> &s) { return map<T>(std::asinh,  s); }
+    template<class T, unsigned int N> inline simd<T,N> atanh  (const simd<T,N> &s) { return map<T>(std::atanh,  s); } 
+
+    template<class T, unsigned int N> inline simd<T,N> exp    (const simd<T,N> &s) { return map<T>(std::exp,    s); }
+    template<class T, unsigned int N> inline simd<T,N> log    (const simd<T,N> &s) { return map<T>(std::log,    s); }
+    template<class T, unsigned int N> inline simd<T,N> log10  (const simd<T,N> &s) { return map<T>(std::log10,  s); }
+    template<class T, unsigned int N> inline simd<T,N> exp2   (const simd<T,N> &s) { return map<T>(std::exp2,   s); }
+    template<class T, unsigned int N> inline simd<T,N> log1p  (const simd<T,N> &s) { return map<T>(std::log1p,  s); }
+    template<class T, unsigned int N> inline simd<T,N> log2   (const simd<T,N> &s) { return map<T>(std::log2,   s); }
+
+    template<class T, unsigned int N> inline simd<T,N> sqrt   (const simd<T,N> &s) { return map<T>(std::sqrt,   s); }
+    template<class T, unsigned int N> inline simd<T,N> cbrt   (const simd<T,N> &s) { return map<T>(std::cbrt,   s); }
+    template<class T, unsigned int N> inline simd<T,N> hypot  (const simd<T,N> &s) { return map<T>(std::hypot,  s); }
+
+    template<class T, unsigned int N> inline simd<T,N> erf    (const simd<T,N> &s) { return map<T>(std::erf,    s); }
+    template<class T, unsigned int N> inline simd<T,N> erfc   (const simd<T,N> &s) { return map<T>(std::erfc,   s); }
+    template<class T, unsigned int N> inline simd<T,N> tgamma (const simd<T,N> &s) { return map<T>(std::tgamma, s); }
+    template<class T, unsigned int N> inline simd<T,N> lgamma (const simd<T,N> &s) { return map<T>(std::lgamma, s); }
+
+    template<class T, unsigned int N> inline simd<T,N> ceil   (const simd<T,N> &s) { return map<T>(std::ceil,   s); }
+    template<class T, unsigned int N> inline simd<T,N> floor  (const simd<T,N> &s) { return map<T>(std::floor,  s); }
+    template<class T, unsigned int N> inline simd<T,N> trunc  (const simd<T,N> &s) { return map<T>(std::trunc,  s); }
+    template<class T, unsigned int N> inline simd<T,N> round  (const simd<T,N> &s) { return map<T>(std::round,  s); }
+    template<class T, unsigned int N> inline simd<T,N> rint   (const simd<T,N> &s) { return map<T>(std::rint,   s); }
+    template<class T, unsigned int N> inline simd<T,N> abs    (const simd<T,N> &s) { return map<T>(std::abs,    s); }
+
+    template<class T, unsigned int N> inline simd<T,N> atan2  (const simd<T,N> &a, const simd<T,N> &b) { return map<T>(std::atan2, a, b); }
+    template<class T, unsigned int N> inline simd<T,N> pow    (const simd<T,N> &a, const simd<T,N> &b) { return map<T>(std::pow,   a, b); }
 }
 
 #endif
