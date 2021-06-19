@@ -141,6 +141,30 @@ Compiling the example, the machine code produced by GCC 9.3 (only relevant parts
 
 I encourage you to often look at the code produced by your compiler to make sure it is using the proper instructions.
 
+## Data structure
+To obtain big advantages from SIMD is often required to rewrite data structures of your application using simd as base types. For instance, if the application uses 3D vectors you should replace the base type inside the vector class with a simd type obtaining a "SIMD 3D vector" containing 8 independent 3D vectors.
+
+```cpp
+struct vec3Dx8 
+{
+    simd<float, 8> x, y, x;
+    
+    vec3Dx8 operator + (const vec3Dx8 &v){
+        return {x + v.x, y + v.y, z + v.z};
+    }
+
+    simd<float, 8> operator * (const vec3Dx8 &v){
+        return x * v.x + y * v.y + z * v.z;
+    }
+
+    ...
+};
+
+```
+
+The replacement should be painless if the code makes little use of branches, in some cases you can use the `.blend()` method to select between two values based on a condition (see [example](#example)).
+
+
 ## Licence
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so.
 
