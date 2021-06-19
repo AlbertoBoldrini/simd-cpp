@@ -60,6 +60,7 @@ int main()
                                             // on which optimizations have been enabled.
 
     f32x8 b = (a > 9).blend(x, y); // Equivalent for each i to : a[i] = z[i] > 9 ? x[i] : y[i] 
+    f32x8 c = (x < y).blend(x, y); // Smaller values between x and y, same of std::min(x,y) 
 
     // Assigment operators
     x += 4 * a;
@@ -147,7 +148,7 @@ To obtain big advantages from SIMD is often required to rewrite data structures 
 ```cpp
 struct vec3Dx8 
 {
-    simd<float, 8> x, y, x;
+    simd<float, 8> x, y, z;
     
     vec3Dx8 operator + (const vec3Dx8 &v){
         return {x + v.x, y + v.y, z + v.z};
@@ -159,7 +160,6 @@ struct vec3Dx8
 
     ...
 };
-
 ```
 
 The replacement should be painless if the code makes little use of branches, in some cases you can use the `.blend()` method to select between two values based on a condition (see [example](#example)).
