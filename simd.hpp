@@ -94,9 +94,6 @@ template<class T, unsigned int N>
 
         template<class V> constexpr simd<V,N> shuffle (const simd<V,N> &a, const simd<V,N> &b) const
             { return __builtin_shuffle(a.r, b.r, r); }
-
-        template<class V> constexpr simd<V,N> blend (const simd<V,N> &a, const simd<V,N> &b) const
-            { return r ? a.r : b.r; }
         
         // Integer type of the same length
         typedef simd<decltype((r < r)[0]), N> int_type;
@@ -213,6 +210,10 @@ template<class T, unsigned int N, class F, class R>
 
         return out;
     }
+
+template<class T, class V, class W, class E = std::enable_if_t<is_simd<T>>, class R = simd<typename std::common_type_t<T,V,W>::type,T::size>>
+    constexpr R blend (const T &test, const V &yes, const W &no)
+        { return test.r ? R(yes).r : R(no).r; }
 
 template<class T, unsigned int N> inline bool any (const simd<T,N> &s) { bool r = s[0]; for(unsigned int i = 1; i < N; i++) r = r || s[i]; return r; }
 template<class T, unsigned int N> inline bool all (const simd<T,N> &s) { bool r = s[0]; for(unsigned int i = 1; i < N; i++) r = r && s[i]; return r; }

@@ -59,14 +59,14 @@ int main()
                                             // instructions depending depending 
                                             // on which optimizations have been enabled.
 
-    f32x8 b = (a > 9).blend(x, y); // Equivalent for each i to : a[i] = z[i] > 9 ? x[i] : y[i] 
-    f32x8 c = (x < y).blend(x, y); // Smaller values between x and y, same of std::min(x,y) 
+    f32x8 b = blend(a > 9, x, y); // Equivalent for each i to : a[i] = z[i] > 9 ? x[i] : y[i] 
+    f32x8 c = blend(x < y, x, y); // Smaller values between x and y, same of std::min(x,y) 
 
     // Assigment operators
     x += 4 * a;
     x /= 3;
 
-    // Access ans set single elements
+    // Access and set single elements
     y[3] = x[1];
 
 
@@ -162,7 +162,7 @@ struct vec3Dx8
 };
 ```
 
-The replacement should be painless if the code makes little use of branches, in some cases you can use the `.blend()` method to select between two values based on a condition (see [example](#example)).
+The replacement should be painless if the code makes little use of branches, in some cases you can use the `blend()` method to select between two values based on a condition (see [example](#example)).
 
 
 ## Licence
